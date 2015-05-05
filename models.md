@@ -320,3 +320,134 @@ place = models.OneToOneField(Place, verbose_name="related place")
 The convention is not to capitalize the first letter of the verbose_name. Django will automatically capitalize the first letter where it needs to.
 *************************************
 #### 字段详细名称
+每一个字段类型，除了 ForeignKey、ManyToManyField 和 OneToOneField，如果没有指定，Django会自动将字段属性名称作为 verbose_name，如果属性名称有下划线，下划线会被替换为空格。
+
+在下面这个例子中（由于我们指定了这个值），verbose_name 是 `person's first name`:
+```python
+first_name = models.CharField("person's first name", max_length=30)
+```
+
+在下面这个例子中，（由于我们没有指定 verbose_name） verbose_name 是 `first name`(这个值是由属性名 first_name 转换来的，替换了其中的下划线为空格而得):
+```python
+first_name = models.CharField(max_length=30)
+```
+
+对于 ForeignKey、ManyToManyField 和 OneToOneField 类型的字段，要求第一个参数必须是一个模型类，所以你要指定 verbose_name 的话，需要使用 verbose_name 关键字参数：
+```python
+poll = models.ForeignKey(Poll, verbose_name="the related poll")
+sites = models.ManyToManyField(Site, verbose_name="list of sites")
+place = models.OneToOneField(Place, verbose_name="related place")
+```
+通常情况下，你不需要将 verbose_name 的第一个字母变为大写，Django会在需要的时候自动将第一个字母设置为大写。
+*************************************
+#### Relationships
+
+Clearly, the power of relational databases lies in relating tables to each other. Django offers ways to define the three most common types of database relationships: many-to-one, many-to-many and one-to-one.
+
+Many-to-one relationships
+
+To define a many-to-one relationship, use django.db.models.ForeignKey. You use it just like any other Field type: by including it as a class attribute of your model.
+
+ForeignKey requires a positional argument: the class to which the model is related.
+
+For example, if a Car model has a Manufacturer – that is, a Manufacturer makes multiple cars but each Car only has one Manufacturer – use the following definitions:
+
+```python
+from django.db import models
+
+class Manufacturer(models.Model):
+    # ...
+    pass
+
+class Car(models.Model):
+    manufacturer = models.ForeignKey(Manufacturer)
+    # ...
+```
+You can also create recursive relationships (an object with a many-to-one relationship to itself) and relationships to models not yet defined; see the model field reference for details.
+
+It’s suggested, but not required, that the name of a ForeignKey field (manufacturer in the example above) be the name of the model, lowercase. You can, of course, call the field whatever you want. For example:
+
+```python
+class Car(models.Model):
+    company_that_makes_it = models.ForeignKey(Manufacturer)
+    # ...
+```
+> See also
+
+> ForeignKey fields accept a number of extra arguments which are explained in the model field reference. These options help define how the relationship should work; all are optional.
+
+For details on accessing backwards-related objects, see the Following relationships backward example.
+
+For sample code, see the Many-to-one relationship model example.
+*************************************
+#### 关系
+数据库中表与表的关系是关系型数据库的一个重要特征。
+Django 提供了数据库常见的三种关系： 多对一、多对多、一对一。
+
+多对一关系
+要定义多对一关系，你需要使用 `django.db.models.ForeignKey`，你可以像其它任何字段类型一样使用，它会包含你模型的属性。
+
+ForeignKey 需要设置你所依赖的 模型类 的位置作为参数（通常情况下，会是一个模型类的类名）。
+
+For example, if a Car model has a Manufacturer – that is, a Manufacturer makes multiple cars but each Car only has one Manufacturer – use the following definitions:
+举个例子，一辆车有一个生产商，但是一个生产商会生产多辆车，车与生产商是多对一的关系：
+```python
+from django.db import models
+
+class Manufacturer(models.Model):
+    # ...
+    pass
+
+class Car(models.Model):
+    manufacturer = models.ForeignKey(Manufacturer)
+    # ...
+```
+
+你也可以创建一个递归的关系(一个对象与自身使用多对一的关系)，也可以使用尚未定义的模型作为外键；详情请参考 [模型字段参考](https://docs.djangoproject.com/en/1.8/ref/models/fields/#ref-foreignkey)
+
+通常情况下，我们建议（你也可以不必这样做）使用 ForeignKey 对于 model 的小写后的名字作为字段的名字，比如上面例子：
+```python
+class Car(models.Model):
+    company_that_makes_it = models.ForeignKey(Manufacturer)
+    # ...
+```
+
+> 参考
+> ForeignKey 提供了一系列的参数，这些参数都是可选的，详情请参考 [模型字段](https://docs.djangoproject.com/en/1.8/ref/models/fields/#foreign-key-arguments)
+> 如果要访问 ForeignKey 字段对应的属性，可以参考 [Following relationships backward example](https://docs.djangoproject.com/en/1.8/topics/db/queries/#backwards-related-objects)
+> 如果你需要查看一些简单的例子，你可以参考 [Many-to-one relationship model example](https://docs.djangoproject.com/en/1.8/topics/db/examples/many_to_one/)
+
+*************************************
+#### Many-to-many relationships
+
+To define a many-to-many relationship, use ManyToManyField. You use it just like any other Field type: by including it as a class attribute of your model.
+
+ManyToManyField requires a positional argument: the class to which the model is related.
+
+For example, if a Pizza has multiple Topping objects – that is, a Topping can be on multiple pizzas and each Pizza has multiple toppings – here’s how you’d represent that:
+
+```python
+from django.db import models
+
+class Topping(models.Model):
+    # ...
+    pass
+
+class Pizza(models.Model):
+    # ...
+    toppings = models.ManyToManyField(Topping)
+```
+As with ForeignKey, you can also create recursive relationships (an object with a many-to-many relationship to itself) and relationships to models not yet defined; see the model field reference for details.
+
+It’s suggested, but not required, that the name of a ManyToManyField (toppings in the example above) be a plural describing the set of related model objects.
+
+It doesn’t matter which model has the ManyToManyField, but you should only put it in one of the models – not both.
+
+Generally, ManyToManyField instances should go in the object that’s going to be edited on a form. In the above example, toppings is in Pizza (rather than Topping having a pizzas ManyToManyField ) because it’s more natural to think about a pizza having toppings than a topping being on multiple pizzas. The way it’s set up above, the Pizza form would let users select the toppings.
+
+> See also
+
+> See the Many-to-many relationship model example for a full example.
+ManyToManyField fields also accept a number of extra arguments which are explained in the model field reference. These options help define how the relationship should work; all are optional.
+
+*************************************
