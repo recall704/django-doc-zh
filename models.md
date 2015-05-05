@@ -390,7 +390,6 @@ Django 提供了数据库常见的三种关系： 多对一、多对多、一对
 
 ForeignKey 需要设置你所依赖的 模型类 的位置作为参数（通常情况下，会是一个模型类的类名）。
 
-For example, if a Car model has a Manufacturer – that is, a Manufacturer makes multiple cars but each Car only has one Manufacturer – use the following definitions:
 举个例子，一辆车有一个生产商，但是一个生产商会生产多辆车，车与生产商是多对一的关系：
 ```python
 from django.db import models
