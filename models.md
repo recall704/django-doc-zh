@@ -385,6 +385,7 @@ For sample code, see the Many-to-one relationship model example.
 Django 提供了数据库常见的三种关系： 多对一、多对多、一对一。
 
 多对一关系
+
 要定义多对一关系，你需要使用 `django.db.models.ForeignKey`，你可以像其它任何字段类型一样使用，它会包含你模型的属性。
 
 ForeignKey 需要设置你所依赖的 模型类 的位置作为参数（通常情况下，会是一个模型类的类名）。
